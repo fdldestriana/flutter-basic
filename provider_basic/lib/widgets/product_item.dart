@@ -1,6 +1,7 @@
 // import package
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:provider_basic/provider/cart.dart';
 
 // import app
 import '../models/product.dart';
@@ -11,21 +12,24 @@ class ProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final productData = Provider.of<Product>(context);
+    final productData = Provider.of<Product>(context, listen: false);
+    final cartData = Provider.of<Cart>(context, listen: false);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
         footer: GridTileBar(
           backgroundColor: Colors.black87,
-          leading: IconButton(
-            icon: (productData.isFavorite)
-                ? const Icon(Icons.favorite_sharp)
-                : const Icon(Icons.favorite_border_outlined),
-            color: Theme.of(context).accentColor,
-            onPressed: () {
-              productData.changeStatus();
-            },
+          leading: Consumer<Product>(
+            builder: (context, value, child) => IconButton(
+              icon: (value.isFavorite)
+                  ? const Icon(Icons.favorite_sharp)
+                  : const Icon(Icons.favorite_border_outlined),
+              color: Theme.of(context).accentColor,
+              onPressed: () {
+                value.changeStatus();
+              },
+            ),
           ),
           title: Text(
             productData.title,
@@ -35,7 +39,14 @@ class ProductItem extends StatelessWidget {
             icon: const Icon(
               Icons.shopping_cart,
             ),
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Berhasil ditambahkan'),
+                duration: Duration(milliseconds: 500),
+              ));
+              cartData.addCart(
+                  productData.id, productData.title, productData.price);
+            },
             color: Theme.of(context).accentColor,
           ),
         ),
